@@ -27,7 +27,7 @@ export default function Navbar() {
               className="h-10 w-10 rounded-full"
             />
             <div className="hidden sm:block">
-              <p className="text-sm font-medium text-slate-900">Julie</p>
+              <p className="text-sm font-medium text-slate-900">Théo</p>
               <p className="text-xs text-slate-500">Admin</p>
             </div>
           </div>
