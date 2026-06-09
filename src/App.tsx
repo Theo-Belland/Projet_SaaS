@@ -6,6 +6,7 @@ import Login from "./Pages/Login";
 import Projects from "./Pages/Projects";
 import Sites from "./Pages/Sites";
 import Analytics from "./Pages/Analytics";
+import Register from "./Pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/sites" element={<Layout><Sites /></Layout>} />
           <Route path="/projects" element={<Layout><Projects /></Layout>} />

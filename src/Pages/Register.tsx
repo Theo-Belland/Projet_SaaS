@@ -1,19 +1,19 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Lock } from "lucide-react";
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/login", {
+      const res = await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -24,14 +24,12 @@ export default function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Erreur login");
+        setError(data.message || "Erreur inscription");
         return;
       }
 
-      // stocker token
-      localStorage.setItem("token", data.token);
-
-      navigate("/dashboard");
+      // option : rediriger vers login
+      navigate("/");
 
     } catch (err) {
       setError("Erreur serveur");
@@ -45,14 +43,14 @@ export default function Login() {
         <div className="w-full bg-white rounded-lg shadow md:max-w-md p-8">
 
           <h1 className="text-xl font-bold text-center mb-6">
-            Connexion
+            Créer un compte
           </h1>
 
           {error && (
             <p className="text-red-500 text-sm mb-4">{error}</p>
           )}
 
-          <form onSubmit={handleSignIn} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
 
             {/* EMAIL */}
             <div>
@@ -64,13 +62,14 @@ export default function Login() {
                   className="pl-10 w-full border p-2 rounded"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="john.doe@company.com"
                 />
               </div>
             </div>
 
             {/* PASSWORD */}
             <div>
-              <label>Password</label>
+              <label>Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 text-gray-400" />
                 <input
@@ -78,6 +77,7 @@ export default function Login() {
                   className="pl-10 w-full border p-2 rounded"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
                 />
               </div>
             </div>
@@ -86,11 +86,8 @@ export default function Login() {
               type="submit"
               className="w-full bg-blue-600 text-white p-2 rounded"
             >
-              Sign in
+              Créer le compte
             </button>
-            <a href="/register" className="text-blue-500">
-              Créer un compte
-            </a>
 
           </form>
 

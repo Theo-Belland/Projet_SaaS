@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { BsArrowLeftShort, BsSearch, BsChevronDown, BsFillImageFill, BsReverseLayoutTextSidebarReverse, BsPerson } from 'react-icons/bs';
 import { AiFillEnvironment, AiOutlineBarChart, AiOutlineFileText, AiOutlineMail, AiOutlineSetting, AiOutlineLogout } from 'react-icons/ai';
 import { RiDashboardFill } from 'react-icons/ri';
@@ -8,6 +8,12 @@ import { RiDashboardFill } from 'react-icons/ri';
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [submenuOpen, setSubmenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
   const Menus: Array<{
     title: string;
     icon: ReactNode;
@@ -55,6 +61,14 @@ const Sidebar = () => {
                   <span className="text-2xl block float-left">{Menu.icon}</span>
                   <span className={`text-base font-medium flex-1 duration-200 ${!isOpen && 'hidden'}`}>{Menu.title}</span>
                 </NavLink>
+              ) : Menu.title === 'Logout' ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-x-4 p-2 rounded-md transition text-gray-300 hover:bg-light-white w-full text-left cursor-pointer"
+                >
+                  <span className="text-2xl block float-left">{Menu.icon}</span>
+                  <span className={`text-base font-medium flex-1 duration-200 ${!isOpen && 'hidden'}`}>{Menu.title}</span>
+                </button>
               ) : (
                 <div className="flex items-center gap-x-4 p-2">
                   <span className="text-2xl block float-left">{Menu.icon}</span>
