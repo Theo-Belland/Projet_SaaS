@@ -19,7 +19,8 @@ router.post("/register", async (req, res) => {
 
     const user = await User.create({
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: 'user' // Par défaut, tous les nouveaux utilisateurs sont des "user"
     });
 
     res.json({
@@ -50,7 +51,8 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id },
+      { id: user._id,
+        role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );

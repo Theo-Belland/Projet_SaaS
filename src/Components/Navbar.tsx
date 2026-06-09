@@ -26,7 +26,7 @@ export default function Navbar() {
               alt="Profil"
               className="h-10 w-10 rounded-full"
             />
-            <div className="hidden sm:block">
+            <div>
               <p className="text-sm font-medium text-slate-900">Théo</p>
               <p className="text-xs text-slate-500">Admin</p>
             </div>
