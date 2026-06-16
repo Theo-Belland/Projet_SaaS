@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 
 import authRoutes from './routes/Auth.js';
 import adminRoutes from './routes/Admin.js';
+import contactRoutes from './routes/Contact.js';
+import { startImapSync } from './services/imapService.js';
 
 dotenv.config();
 const app = express();
@@ -13,9 +15,15 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/contact', contactRoutes);
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('Mongo Connecte'))
 .catch((err) => console.log(err));
+
+// Démarre la synchronisation IMAP
+if (process.env.IMAP_USER && process.env.IMAP_PASS) {
+  startImapSync();
+}
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');

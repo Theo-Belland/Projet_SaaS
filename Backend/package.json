@@ -16,7 +16,10 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "imap": "^0.8.19",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.3"
+    "mailparser": "^3.9.10",
+    "mongoose": "^9.6.3",
+    "nodemailer": "^8.0.11"
   }
 }

@@ -26,9 +26,14 @@ const Sidebar = () => {
     { title: 'Sites', icon: <AiFillEnvironment />, path: '/sites' },
     { title: 'Projets', icon: <BsReverseLayoutTextSidebarReverse />, path: '/projects' },
     { title: 'Analytics', icon: <AiOutlineBarChart />, path: '/analytics' },
-    { title: 'Pages', icon: <AiOutlineFileText /> },
+    {
+      title: 'Pages',
+      icon: <AiOutlineFileText />,
+      submenu: true,
+      submenuItems: [{ title: 'Contact', path: '/contact' }],
+    },
     { title: 'Media', spacing: true, icon: <BsFillImageFill /> },
-    { title: 'Inbox', icon: <AiOutlineMail /> },
+    { title: 'Inbox', icon: <AiOutlineMail />, path: '/inbox' },
     { title: 'Profile', spacing: true, icon: <BsPerson /> },
     { title: 'Setting', icon: <AiOutlineSetting /> },
     { title: 'Logout', icon: <AiOutlineLogout /> },
@@ -81,8 +86,17 @@ const Sidebar = () => {
               {Menu.submenu && Menu.submenuItems && submenuOpen && isOpen && (
                 <ul className="w-full">
                   {Menu.submenuItems.map((submenuItem, subIndex) => (
-                    <li key={subIndex} className="text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 px-5 hover:bg-light-white rounded-md ml-12">
-                      {submenuItem.title}
+                    <li key={subIndex}>
+                      <NavLink
+                        to={submenuItem.path ?? '#'}
+                        className={({ isActive }) =>
+                          `text-gray-300 text-sm flex items-center gap-x-4 p-2 px-5 hover:bg-light-white rounded-md ml-12 transition ${
+                            isActive ? 'bg-white text-dark-purple' : ''
+                          }`
+                        }
+                      >
+                        {submenuItem.title}
+                      </NavLink>
                     </li>
                   ))}
                 </ul>
