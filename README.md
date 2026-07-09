@@ -1,75 +1,141 @@
-# React + TypeScript + Vite
+# Project Manager
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application portfolio + dashboard d'administration.
 
-Currently, two official plugins are available:
+Le projet est composé de :
+- un frontend React (Vite + TypeScript)
+- un backend Node.js (Express + MongoDB)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Fonctionnalités principales
 
-## React Compiler
+### Portfolio public
+- page d'accueil portfolio
+- section projets dynamique depuis l'API
+- cartes projets avec slider d'images
+- modale de détail projet (description, stack, tags, images)
+- section compétences dynamique (nom, icône, pourcentage)
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Dashboard administration
+- authentification par token JWT
+- gestion des projets : création, modification, suppression
+- upload multiple d'images projets
+- gestion des compétences :
+  - nom
+  - catégorie
+  - niveau en pourcentage (0-100)
+  - icône sélectionnable
 
-Note: This will impact Vite dev & build performances.
+## Structure
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+Project-Manager/
+├─ src/                # Frontend React
+├─ Backend/            # API Express + MongoDB
+├─ public/
+└─ dist/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Prérequis
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Node.js 18+
+- MongoDB local (ou URI Mongo distante)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Installation
+
+### Frontend
+
+Depuis la racine du projet :
+
+```bash
+npm install
+```
+
+### Backend
+
+```bash
+cd Backend
+npm install
+```
+
+## Variables d'environnement backend
+
+Créer/mettre à jour `Backend/.env` :
+
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/Project_Manager
+JWT_SECRET=your_jwt_secret_key
+
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+MAIL_PRO=
+MAIL_PERSO=
+
+IMAP_HOST=
+IMAP_PORT=
+IMAP_USER=
+IMAP_PASS=
+```
+
+Note MongoDB : sur certaines installations locales, utiliser `127.0.0.1` est plus fiable que `localhost`.
+
+## Lancement en développement
+
+### 1. Lancer le backend
+
+```bash
+cd Backend
+npm run dev
+```
+
+### 2. Lancer le frontend
+
+Dans un autre terminal, depuis la racine :
+
+```bash
+npm run dev
+```
+
+## Build production frontend
+
+Depuis la racine :
+
+```bash
+npm run build
+```
+
+## API utilisée par le frontend
+
+- `GET /api/projects`
+- `GET /api/projects/admin/all`
+- `POST /api/projects`
+- `PUT /api/projects/:id`
+- `DELETE /api/projects/:id`
+
+- `GET /api/skills`
+- `POST /api/skills`
+- `PUT /api/skills/:id`
+- `DELETE /api/skills/:id`
+
+## Icônes de compétences
+
+Les icônes sont choisies via une liste dans le dashboard compétences, puis stockées en clé texte en base.
+
+Exemples de clés :
+- `react`
+- `html5`
+- `css3`
+- `javascript`
+- `typescript`
+- `nodejs`
+- `mongodb`
+
+Le rendu est automatique sur le dashboard et le portfolio.
+
+## Tests backend
+
+```bash
+cd Backend
+npm test
 ```

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { BsArrowLeftShort, BsSearch, BsChevronDown, BsFillImageFill, BsReverseLayoutTextSidebarReverse, BsPerson } from 'react-icons/bs';
-import { AiFillEnvironment, AiOutlineBarChart, AiOutlineFileText, AiOutlineMail, AiOutlineSetting, AiOutlineLogout } from 'react-icons/ai';
+import { AiFillEnvironment, AiOutlineBarChart, AiOutlineFileText, AiOutlineMail, AiOutlineSetting, AiOutlineLogout, AiOutlineTool } from 'react-icons/ai';
 import { RiDashboardFill } from 'react-icons/ri';
 
 const Sidebar = () => {
@@ -12,7 +12,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/login");
   };
   const Menus: Array<{
     title: string;
@@ -20,11 +20,12 @@ const Sidebar = () => {
     path?: string;
     spacing?: boolean;
     submenu?: boolean;
-    submenuItems?: { title: string }[];
+    submenuItems?: { title: string; path?: string }[];
   }> = [
     { title: 'Dashboard', icon: <RiDashboardFill />, path: '/dashboard' },
     { title: 'Sites', icon: <AiFillEnvironment />, path: '/sites' },
     { title: 'Projets', icon: <BsReverseLayoutTextSidebarReverse />, path: '/projects' },
+    { title: 'Compétences', icon: <AiOutlineTool />, path: '/skills' },
     { title: 'Analytics', icon: <AiOutlineBarChart />, path: '/analytics' },
     {
       title: 'Pages',

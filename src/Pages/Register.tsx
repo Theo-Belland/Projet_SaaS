@@ -29,7 +29,7 @@ export default function Register() {
       }
 
       // option : rediriger vers login
-      navigate("/");
+      navigate("/login");
 
     } catch (err) {
       setError("Erreur serveur");

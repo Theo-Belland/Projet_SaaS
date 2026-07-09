@@ -3,13 +3,14 @@ import { useState } from "react";
 export default function Contact() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !message.trim()) {
+    if (!name.trim() || !email.trim() || !subject.trim() || !message.trim()) {
       setStatus("Remplis tous les champs ⚠️");
       return;
     }
@@ -19,7 +20,7 @@ export default function Contact() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name, email, message })
+      body: JSON.stringify({ name, email, subject, message })
     });
 
     const data = await res.json();
@@ -28,6 +29,7 @@ export default function Contact() {
       setStatus("Message envoyé 👍");
       setName("");
       setEmail("");
+      setSubject("");
       setMessage("");
     } else {
       setStatus(`Erreur ❌ : ${data.error || "Erreur inconnue"}`);
@@ -51,6 +53,13 @@ export default function Contact() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="border p-2 w-full"
+        />
+
+        <input
+          placeholder="Sujet"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
           className="border p-2 w-full"
         />
 

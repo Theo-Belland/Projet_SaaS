@@ -4,6 +4,7 @@ interface Message {
   _id: string;
   name: string;
   email: string;
+  subject?: string;
   message: string;
   read: boolean;
   createdAt: string;
@@ -17,25 +18,30 @@ export default function Inbox() {
   const [replyText, setReplyText] = useState("");
   const [replySending, setReplySending] = useState(false);
 
-  const fetchMessages = () => {
-    fetch("http://localhost:3000/api/contact", {
-      headers: {
-        Authorization: localStorage.getItem("token") || "",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setMessages(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/contact", {
+        headers: {
+          Authorization: localStorage.getItem("token") || "",
+        },
       });
+      const data = await res.json();
+      setMessages(data);
+      if (loading) {
+        setLoading(false);
+      }
+      return data;
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      return [];
+    }
   };
 
   useEffect(() => {
     fetchMessages();
+    const interval = setInterval(fetchMessages, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const markAsRead = async (id: string) => {
@@ -51,11 +57,21 @@ export default function Inbox() {
 
   const handleDeleteMessage = async (id: string) => {
     if (!confirm("Supprimer ce message ?")) return;
-    await fetch(`http://localhost:3000/api/contact/${id}`, {
-      method: "DELETE",
-    });
-    setSelectedMessage(null);
-    fetchMessages();
+    try {
+      const res = await fetch(`http://localhost:3000/api/contact/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Erreur serveur' }));
+        alert(`Impossible de supprimer: ${err.message || err.error || JSON.stringify(err)}`);
+        return;
+      }
+      setSelectedMessage(null);
+      fetchMessages();
+    } catch (err) {
+      console.error(err);
+      alert('Erreur réseau lors de la suppression');
+    }
   };
 
   const handleReply = async () => {
@@ -72,10 +88,7 @@ export default function Inbox() {
       );
       if (res.ok) {
         setReplyText("");
-        // Rafraîchir les messages pour voir la nouvelle réponse
-        fetchMessages();
-        // Réouvrir le message pour voir la réponse
-        const updatedMessages = await fetch("http://localhost:3000/api/contact").then(r => r.json());
+        const updatedMessages = await fetchMessages();
         const updatedMessage = updatedMessages.find((m: Message) => m._id === selectedMessage._id);
         if (updatedMessage) {
           setSelectedMessage(updatedMessage);
@@ -139,11 +152,10 @@ export default function Inbox() {
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h4 className="font-semibold">
-                    {message.name}
+                    {message.subject || 'Sans sujet'}
                   </h4>
-
                   <p className="text-sm text-slate-500">
-                    {message.email}
+                    {message.name} — {message.email}
                   </p>
                 </div>
 
@@ -193,8 +205,8 @@ export default function Inbox() {
                 Reçu le {new Date(selectedMessage.createdAt).toLocaleDateString("fr-FR")}
               </p>
               <div className="bg-slate-50 p-4 rounded-lg mb-6 whitespace-pre-wrap border-l-4 border-blue-500">
-                <strong>{selectedMessage.name}</strong>
-                <p className="text-sm text-slate-600 mb-2">{selectedMessage.email}</p>
+                <strong>{selectedMessage.subject || 'Sans sujet'}</strong>
+                <p className="text-sm text-slate-600 mb-2">{selectedMessage.name} — {selectedMessage.email}</p>
                 {selectedMessage.message}
               </div>
 

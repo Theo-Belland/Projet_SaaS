@@ -23,6 +23,19 @@ const parseMessageBody = (msg) =>
     msg.once('error', reject);
   });
 
+const extractThreadId = (subject = '') => {
+  const match = subject.match(/\[PM-ID:([0-9a-fA-F]{24})\]/);
+  return match ? match[1] : null;
+};
+
+const normalizeSubject = (subject = '') => {
+  return subject
+    .replace(/\[PM-ID:[0-9a-fA-F]{24}\]/gi, '')
+    .replace(/^(re[\s\u00A0]*[:\-–—\s]*)+/i, '')
+    .trim()
+    .toLowerCase();
+};
+
 export const syncEmails = async () => {
   return new Promise((resolve, reject) => {
     const imap = new Imap(buildImapConfig());
@@ -35,7 +48,7 @@ export const syncEmails = async () => {
           return reject(err);
         }
 
-        imap.search(['ALL'], (err, results) => {
+        imap.search(['UNSEEN'], (err, results) => {
           if (err) {
             console.error('Erreur IMAP search:', err);
             imap.end();
@@ -50,10 +63,13 @@ export const syncEmails = async () => {
 
           const recentResults = results.slice(-50);
           console.log(`IMAP: ${results.length} email(s) trouvés, lecture des ${recentResults.length} derniers`);
-          const fetcher = imap.fetch(recentResults, { bodies: '' });
+          const fetcher = imap.fetch(recentResults, { bodies: '', struct: true });
           let processed = 0;
-
-          fetcher.on('message', (msg) => {
+          fetcher.on('message', (msg, seqno) => {
+            let uid = null;
+            msg.on('attributes', (attrs) => {
+              uid = attrs.uid;
+            });
             parseMessageBody(msg)
               .then((raw) => simpleParser(raw))
               .then(async (parsed) => {
@@ -68,25 +84,55 @@ export const syncEmails = async () => {
 
                 console.log(`IMAP: email de ${senderEmail}, sujet: ${subject}`);
 
-                const originalMessage = await Message.findOne({
-                  email: senderEmail,
-                });
-
+                // try to extract thread id from subject, inReplyTo or references
+                let threadId = extractThreadId(subject);
+                if (!threadId && parsed.inReplyTo) {
+                  threadId = extractThreadId(parsed.inReplyTo);
+                }
+                if (!threadId && parsed.references) {
+                  const refs = Array.isArray(parsed.references) ? parsed.references.join(' ') : String(parsed.references);
+                  threadId = extractThreadId(refs);
+                }
+                let originalMessage = null;
+                if (threadId) {
+                  originalMessage = await Message.findById(threadId);
+                  if (originalMessage) console.log(`IMAP: trouvé par PM-ID -> ${originalMessage._id}`);
+                }
                 if (!originalMessage) {
-                  console.log(`IMAP: aucun message d'origine pour ${senderEmail}`);
-                  return;
+                  const normalized = normalizeSubject(subject);
+                  originalMessage = await Message.findOne({
+                    email: senderEmail,
+                    $or: [
+                      { normalizedSubject: normalized },
+                      { subject: { $regex: `^${normalized.replace(/[.*+?^${}()|[\\]\\]/g, '\\\$&')}$`, $options: 'i' } },
+                    ],
+                  });
+                  if (originalMessage) console.log(`IMAP: trouvé par sujet normalisé -> ${originalMessage._id}`);
                 }
 
-                const replyExists = originalMessage.replies?.some(
-                  (r) => r.text === text
-                );
+                if (!originalMessage) {
+                  console.log(`IMAP: aucun message d'origine pour ${senderEmail} / sujet ${subject}`);
+                } else {
+                  const replyExists = originalMessage.replies?.some(
+                    (r) => r.text === text
+                  );
 
-                if (!replyExists) {
-                  originalMessage.replies.push({
-                    text,
-                    sentAt: parsed.date || new Date(),
-                  });                  originalMessage.read = true;                  await originalMessage.save();
-                  console.log(`✅ Réponse sync: ${senderEmail} - ${subject}`);
+                  if (!replyExists) {
+                    originalMessage.replies.push({
+                      text,
+                      sentAt: parsed.date || new Date(),
+                    });
+                    originalMessage.read = true;
+                    await originalMessage.save();
+                    console.log(`✅ Réponse sync: ${senderEmail} - ${subject}`);
+                  }
+                }
+
+                // marque le message comme lu pour éviter retraitements
+                if (uid) {
+                  imap.addFlags(uid, '\\Seen', (err) => {
+                    if (err) console.error('Erreur addFlags:', err);
+                  });
                 }
               })
               .catch((error) => {

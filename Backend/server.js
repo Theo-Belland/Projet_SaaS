@@ -1,30 +1,26 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
 import dotenv from 'dotenv';
-
-import authRoutes from './routes/Auth.js';
-import adminRoutes from './routes/Admin.js';
-import contactRoutes from './routes/Contact.js';
+import app from './app.js';
+import { connectDB } from './config/db.js';
 import { startImapSync } from './services/imapService.js';
 
 dotenv.config();
-const app = express();
-app.use(cors());
-app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/contact', contactRoutes);
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('Mongo Connecte'))
-.catch((err) => console.log(err));
+const startServer = async () => {
+  try {
+    await connectDB();
 
-// Démarre la synchronisation IMAP
-if (process.env.IMAP_USER && process.env.IMAP_PASS) {
-  startImapSync();
-}
+    // Démarre la synchronisation IMAP uniquement si la base est joignable
+    if (process.env.IMAP_USER && process.env.IMAP_PASS) {
+      startImapSync();
+    }
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
+    app.listen(3000, () => {
+      console.log('Server is running on port 3000');
+    });
+  } catch (error) {
+    console.error('Impossible de démarrer le backend:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
