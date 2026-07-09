@@ -1,3 +1,5 @@
+⚠ Ce Projet à etait fait avec l'ia ⚠
+Voulant me perfectionner avec et sans l'ia, j'ai voulu refaire mon portfolio avec un SaaS de gestion derriere et ayant pas vraiment de connaissance en Back-End, j'ai voulu continuer a me perfectionner en front-end sans ia et continuer a apprendre l'ia pour le back-end.
 # Project Manager
 
 Application portfolio + dashboard d'administration.
